@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:spartanow="http://schemas.android.com/apk/res-auto" >
+    <!-- Search, should appear as action button -->
+    <item android:id="@+id/action_forward"
+        android:icon="@drawable/ic_action_forward"
+        android:title="@string/action_forward"
+        spartanow:showAsAction="ifRoom" />
+</menu>
