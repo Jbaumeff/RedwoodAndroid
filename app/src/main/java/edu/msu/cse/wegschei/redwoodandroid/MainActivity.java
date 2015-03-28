@@ -1,6 +1,7 @@
 package edu.msu.cse.wegschei.redwoodandroid;
 
-import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -25,19 +26,31 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private MapFragment mapFragment;
     private Parameters params = new Parameters();
+    private LocationManager locationManager;
     private boolean loaded = false;
 
     private static class Parameters implements Serializable {
-        float lat = Float.NaN;
-        float lon = Float.NaN;
+        float destLat = Float.NaN;
+        float destLon = Float.NaN;
+        float sourceLat = Float.NaN;
+        float sourceLon = Float.NaN;
     }
+
+    private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
+        @Override
+        public void onMyLocationChange(Location location) {
+            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            params.sourceLat = (float) loc.latitude;
+            params.sourceLon = (float) loc.longitude;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.activity_main);
 
-        if(bundle != null) {
+        if (bundle != null) {
             params = (Parameters) bundle.getSerializable(PARAMS);
             loaded = true;
         }
@@ -46,6 +59,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
         mapFragment.getMap().setOnMapClickListener(this);
         mapFragment.getMap().setOnMapLongClickListener(this);
+        mapFragment.getMap().setOnMyLocationChangeListener(myLocationChangeListener);
     }
 
     @Override
@@ -73,12 +87,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         LatLng start;
         map.setMyLocationEnabled(true);
 
-        if(!loaded) {
+        if (!loaded) {
             start = new LatLng(42.7256411f, -84.4799548f);
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(start, START_ZOOM));
         } else {
-            if(!(Float.isNaN(params.lat) || Float.isNaN(params.lon))) {
-                start = new LatLng(params.lat, params.lon);
+            if (!(Float.isNaN(params.destLat) || Float.isNaN(params.destLon))) {
+                start = new LatLng(params.destLat, params.destLon);
                 addOurMarker(map, start);
             }
         }
@@ -87,8 +101,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     @Override
     public void onMapClick(LatLng point) {
         mapFragment.getMap().clear();
-        params.lat = Float.NaN;
-        params.lon = Float.NaN;
+        params.destLat = Float.NaN;
+        params.destLon = Float.NaN;
     }
 
     @Override
@@ -106,19 +120,21 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     private void goToResult() {
-        if(Float.isNaN(params.lat) || Float.isNaN(params.lon)) {
+        if (Float.isNaN(params.destLat) || Float.isNaN(params.destLon)) {
             Toast.makeText(this, R.string.no_marker, Toast.LENGTH_SHORT).show();
         } else {
-            Intent intent = new Intent(this, ResultActivity.class);
-            intent.putExtra(ResultActivity.LATITUDE, params.lat);
-            intent.putExtra(ResultActivity.LONGITUDE, params.lon);
-            startActivity(intent);
+            CommunicationDlg comDlg = new CommunicationDlg();
+            comDlg.setDestLat(params.destLat);
+            comDlg.setDestLon(params.destLon);
+            comDlg.setSourceLat(params.sourceLat);
+            comDlg.setSourceLon(params.sourceLon);
+            comDlg.show(this.getFragmentManager(), "calculating");
         }
     }
 
     private void addOurMarker(GoogleMap map, LatLng point) {
-        params.lat = (float) point.latitude;
-        params.lon = (float) point.longitude;
+        params.destLat = (float) point.latitude;
+        params.destLon = (float) point.longitude;
 
         map.addMarker(new MarkerOptions()
                 .position(point)
