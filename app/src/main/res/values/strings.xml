@@ -11,8 +11,9 @@
     <string name="bus">Bus</string>
     <string name="arrival">Arrival:</string>
     <string name="duration">Duration:</string>
-    <string name="dummy_duration">21 Minutes</string>
-    <string name="dummy_arrival">5:05pm</string>
+    <string name="dummy_duration">21 min 39 secs</string>
+    <string name="dummy_arrival">12:05pm</string>
     <string name="calculating">Calculating</string>
+    <string name="communication_fail">Unable to reach server</string>
 
 </resources>

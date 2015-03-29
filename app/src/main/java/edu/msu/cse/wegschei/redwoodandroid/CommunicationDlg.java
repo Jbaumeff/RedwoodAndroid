@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -25,6 +26,11 @@ public class CommunicationDlg extends DialogFragment {
 
     private int walkDuration;
     private int busDuration;
+
+    /**
+     * Set true if we want to cancel
+     */
+    private volatile boolean cancel = false;
 
     public void setSourceLat(float sourceLat) {
         this.sourceLat = sourceLat;
@@ -47,7 +53,8 @@ public class CommunicationDlg extends DialogFragment {
      */
     @Override
     public Dialog onCreateDialog(Bundle bundle) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        cancel = false;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_DARK);
 
         // Set the title
         builder.setTitle(R.string.calculating);
@@ -55,7 +62,7 @@ public class CommunicationDlg extends DialogFragment {
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-
+                cancel = true;
             }
         });
 
@@ -71,18 +78,31 @@ public class CommunicationDlg extends DialogFragment {
             public void run() {
                 Cloud cloud = new Cloud();
                 InputStream stream = cloud.getDirectionData(sourceLat, sourceLon, destLat, destLon);
+
+                if(cancel) {
+                    return;
+                }
+
                 if(stream != null) {
-                    if (parseReply(stream)) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                    final boolean success = parseReply(stream);
+
+                    if(cancel) {
+                        return;
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (success) {
                                 Intent intent = new Intent(getActivity(), ResultActivity.class);
                                 intent.putExtra(ResultActivity.WALK_DURATION, walkDuration);
                                 intent.putExtra(ResultActivity.BUS_DURATION, busDuration);
                                 startActivity(intent);
+                            } else {
+                                Toast.makeText(getActivity(), R.string.communication_fail, Toast.LENGTH_SHORT).show();
                             }
-                        });
-                    }
+                        }
+                    });
                 }
 
                 dlg.dismiss();
