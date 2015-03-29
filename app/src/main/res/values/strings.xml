@@ -4,7 +4,7 @@
     <string name="select_destination">Select Destination</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_result">Results</string>
+    <string name="title_activity_result">Walk or Bus</string>
     <string name="action_forward">Get Result</string>
     <string name="no_marker">Please select a destination</string>
     <string name="walk">Walk </string>

@@ -13,12 +13,14 @@ public class ResultActivity extends ActionBarActivity {
 
     final static String WALK_DURATION = "walk_duration";
     final static String BUS_DURATION = "bus_duration";
+    final static String BUS_NUMBER = "bus_number";
 
     final static String RED = "#FF8C8E";
     final static String GREEN = "#77D9AF";
 
     int walkDuration;
     int busDuration;
+    int busNumber;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -28,6 +30,7 @@ public class ResultActivity extends ActionBarActivity {
         Intent intent = getIntent();
         walkDuration = intent.getIntExtra(WALK_DURATION, -1);
         busDuration = intent.getIntExtra(BUS_DURATION, -1);
+        busNumber = intent.getIntExtra(BUS_NUMBER, -1);
 
         updateUI();
     }
@@ -37,6 +40,7 @@ public class ResultActivity extends ActionBarActivity {
         TextView textBusDuration = (TextView)this.findViewById(R.id.textBusDuration);
         TextView textWalkArrival = (TextView)this.findViewById(R.id.textWalkArrival);
         TextView textBusArrival = (TextView)this.findViewById(R.id.textBusArrival);
+        TextView textBus = (TextView)this.findViewById(R.id.textBus);
 
         Calendar calWalk = Calendar.getInstance();
         calWalk.add(Calendar.SECOND, walkDuration);
@@ -53,13 +57,30 @@ public class ResultActivity extends ActionBarActivity {
 
         int walkColor;
         int busColor;
-        if(walkDuration <= busDuration) {
+        String temp;
+
+        if(busNumber > 0) {
+            temp = "Bus #" + Integer.toString(busNumber);
+
+            if (walkDuration <= busDuration) {
+                walkColor = Color.parseColor(GREEN);
+                busColor = Color.parseColor(RED);
+            } else {
+                walkColor = Color.parseColor(RED);
+                busColor = Color.parseColor(GREEN);
+            }
+        } else {
             walkColor = Color.parseColor(GREEN);
             busColor = Color.parseColor(RED);
-        } else {
-            walkColor = Color.parseColor(RED);
-            busColor = Color.parseColor(GREEN);
+
+            temp = "No Bus";
+            textBusDuration.setText("");
+            textBusArrival.setText("");
+            ((TextView)this.findViewById(R.id.textBusDurationLabel)).setText("");
+            ((TextView)this.findViewById(R.id.textBusArrivalLabel)).setText("");
         }
+
+        textBus.setText(temp);
 
         (this.findViewById(R.id.walkLabel)).setBackgroundColor(walkColor);
         (this.findViewById(R.id.walkDuration)).setBackgroundColor(walkColor);

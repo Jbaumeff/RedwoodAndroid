@@ -26,6 +26,7 @@ public class CommunicationDlg extends DialogFragment {
 
     private int walkDuration;
     private int busDuration;
+    private int busNumber;
 
     /**
      * Set true if we want to cancel
@@ -97,6 +98,7 @@ public class CommunicationDlg extends DialogFragment {
                                 Intent intent = new Intent(getActivity(), ResultActivity.class);
                                 intent.putExtra(ResultActivity.WALK_DURATION, walkDuration);
                                 intent.putExtra(ResultActivity.BUS_DURATION, busDuration);
+                                intent.putExtra(ResultActivity.BUS_NUMBER, busNumber);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getActivity(), R.string.communication_fail, Toast.LENGTH_SHORT).show();
@@ -135,6 +137,7 @@ public class CommunicationDlg extends DialogFragment {
             if(status.equals("OK")) {
                 walkDuration = json.getInt("walk_duration");
                 busDuration = json.getInt("bus_duration");
+                busNumber = json.getInt("first_bus");
                 success = true;
             }
         } catch (JSONException e) {
